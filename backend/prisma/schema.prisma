@@ -1,0 +1,171 @@
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  student
+  faculty
+  hostel_superintendent
+  conference_supervisor
+  gate_security
+  admin
+}
+
+enum PassType {
+  student_permanent
+  faculty_permanent
+  conference_temporary
+  single_day_visitor
+}
+
+enum PassStatus {
+  drafted
+  pending_approval
+  approved
+  rejected
+  expired
+  revoked
+}
+
+enum WorkflowStatus {
+  pending
+  approved
+  rejected
+}
+
+enum ScanType {
+  qr
+  rfid
+  manual
+}
+
+enum ActionType {
+  entry
+  exit
+  denied
+}
+
+enum LogDirection {
+  inbound
+  outbound
+}
+
+model User {
+  id            String   @id @default(uuid()) @db.Uuid
+  email         String   @unique
+  passwordHash  String   @map("password_hash")
+  name          String
+  phone         String
+  role          Role
+  rfidTag       String?  @unique @map("rfid_tag")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  studentProfile StudentProfile?
+  facultyProfile FacultyProfile?
+  passes         Pass[]
+  gateLogs       GateLog[]        @relation("ScannerLogs")
+
+  @@map("users")
+}
+
+model StudentProfile {
+  id           String  @id @default(uuid()) @db.Uuid
+  userId       String  @unique @map("user_id") @db.Uuid
+  rollNumber   String  @unique @map("roll_number")
+  hostelName   String  @map("hostel_name")
+  roomNumber   String  @map("room_number")
+  parentPhone  String  @map("parent_phone")
+  isBlacklisted Boolean @default(false) @map("is_blacklisted")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("student_profiles")
+}
+
+model FacultyProfile {
+  id          String @id @default(uuid()) @db.Uuid
+  userId      String @unique @map("user_id") @db.Uuid
+  employeeId  String @unique @map("employee_id")
+  department  String
+  designation String
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("faculty_profiles")
+}
+
+model Pass {
+  id          String     @id @default(uuid()) @db.Uuid
+  passType    PassType   @map("pass_type")
+  userId      String     @map("user_id") @db.Uuid
+  status      PassStatus @default(drafted)
+  startDate   DateTime   @map("start_date")
+  endDate     DateTime   @map("end_date")
+  passDetails Json       @map("pass_details")
+  createdAt   DateTime   @default(now()) @map("created_at")
+  updatedAt   DateTime   @updatedAt @map("updated_at")
+
+  user              User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  approvalWorkflows ApprovalWorkflow[]
+  gateLogs          GateLog[]
+  rotatingQrSecret  RotatingQrSecret?
+
+  @@map("passes")
+}
+
+model ApprovalWorkflow {
+  id             String         @id @default(uuid()) @db.Uuid
+  passId         String         @map("pass_id") @db.Uuid
+  approverRoleId String?        @map("approver_role_id")
+  approverId     String?        @map("approver_id") @db.Uuid
+  stepOrder      Int            @map("step_order")
+  status         WorkflowStatus @default(pending)
+  comments       String?
+  processedAt    DateTime?      @map("processed_at")
+
+  pass Pass @relation(fields: [passId], references: [id], onDelete: Cascade)
+
+  @@map("approval_workflows")
+}
+
+model GateLog {
+  id         String     @id @default(uuid()) @db.Uuid
+  passId     String?    @map("pass_id") @db.Uuid
+  scannerId  String     @map("scanner_id") @db.Uuid
+  scanType   ScanType   @map("scan_type")
+  actionType ActionType @map("action_type")
+  timestamp  DateTime   @default(now())
+  notes      String?
+
+  pass    Pass? @relation(fields: [passId], references: [id], onDelete: SetNull)
+  scanner User  @relation("ScannerLogs", fields: [scannerId], references: [id], onDelete: Cascade)
+
+  @@map("gate_logs")
+}
+
+model RotatingQrSecret {
+  id        String   @id @default(uuid()) @db.Uuid
+  passId    String   @unique @map("pass_id") @db.Uuid
+  secretKey String   @map("secret_key")
+  expiresAt DateTime @map("expires_at")
+
+  pass Pass @relation(fields: [passId], references: [id], onDelete: Cascade)
+
+  @@map("rotating_qr_secrets")
+}
+
+model SwdIntegrationLog {
+  id         String       @id @default(uuid()) @db.Uuid
+  endpoint   String
+  direction  LogDirection
+  payload    Json
+  statusCode Int          @map("status_code")
+  timestamp  DateTime     @default(now())
+
+  @@map("swd_integration_logs")
+}
