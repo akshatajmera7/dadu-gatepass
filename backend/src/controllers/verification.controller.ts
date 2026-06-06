@@ -33,6 +33,7 @@ export async function generateQRPayload(req: AuthenticatedRequest, res: Response
 
       // Check access: only the owner can get the QR generator payload
       if (req.user!.role !== Role.admin && pass.userId !== req.user!.id) {
+        console.log(`[QR Access Denied - DB Pass] req.user.role: ${req.user!.role}, pass.userId: ${pass.userId}, req.user.id: ${req.user!.id}`);
         return res.status(403).json({ error: 'Access denied' });
       }
 
@@ -62,6 +63,7 @@ export async function generateQRPayload(req: AuthenticatedRequest, res: Response
       return res.status(400).json({ error: 'Pass is not approved' });
     }
     if (req.user!.role !== Role.admin && mockPass.userId !== req.user!.id) {
+      console.log(`[QR Access Denied - Mock Pass] req.user.role: ${req.user!.role}, mockPass.userId: ${mockPass.userId}, req.user.id: ${req.user!.id}`);
       return res.status(403).json({ error: 'Access denied' });
     }
 

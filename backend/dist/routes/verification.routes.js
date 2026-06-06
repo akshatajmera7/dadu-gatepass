@@ -1,0 +1,12 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const verification_controller_1 = require("../controllers/verification.controller");
+const auth_1 = require("../middlewares/auth");
+const client_1 = require("@prisma/client");
+const router = (0, express_1.Router)();
+router.use(auth_1.authenticateJWT);
+router.get('/qr/generate/:passId', verification_controller_1.generateQRPayload);
+router.post('/qr/verify', (0, auth_1.requireRoles)(client_1.Role.gate_security, client_1.Role.admin), verification_controller_1.verifyQRPayload);
+router.post('/rfid/simulate', (0, auth_1.requireRoles)(client_1.Role.gate_security, client_1.Role.admin), verification_controller_1.simulateRFID);
+exports.default = router;
