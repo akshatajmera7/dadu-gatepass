@@ -3,38 +3,11 @@ import { createClient } from 'redis';
 type RedisClientType = ReturnType<typeof createClient>;
 
 let redisClient: RedisClientType | null = null;
-let useInMemory = false;
+let useInMemory = true;
 const inMemoryCache = new Map<string, { value: string; expiresAt: number }>();
 
 export async function connectRedis() {
-  const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
-  redisClient = createClient({
-    url: redisUrl,
-    socket: {
-      connectTimeout: 3000,
-      reconnectStrategy: (retries) => {
-        if (retries > 2) return new Error('Max Redis reconnect attempts exceeded');
-        return 1000;
-      }
-    }
-  });
-
-  redisClient.on('error', (err) => {
-    if (!useInMemory) {
-      console.warn('Redis connection failed, falling back to In-Memory Cache.');
-      useInMemory = true;
-    }
-  });
-
-  try {
-    await redisClient.connect();
-    console.log('Redis connected successfully');
-  } catch (error: any) {
-    if (!useInMemory) {
-      console.warn('Could not connect to Redis. Using In-Memory fallback cache.');
-      useInMemory = true;
-    }
-  }
+  console.log('Using In-Memory Cache for temporary key storage (Redis bypassed).');
 }
 
 export const cache = {
