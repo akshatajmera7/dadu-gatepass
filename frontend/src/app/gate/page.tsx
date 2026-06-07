@@ -68,6 +68,15 @@ export default function GateDashboard() {
         actionType: data.actionType,
         message: `ACCESS GRANTED: ${data.log.user?.name || 'Visitor'} verified successfully for ${data.actionType.toUpperCase()}`
       });
+      
+      // Append locally to prevent blank streams on WebSocket issues
+      if (data.log) {
+        setLogs((prev) => {
+          if (prev.some((l) => l.id === data.log.id)) return prev;
+          return [data.log, ...prev];
+        });
+      }
+      
       setQrInput('');
     } catch (err: any) {
       setScanResult({
@@ -138,6 +147,14 @@ export default function GateDashboard() {
         actionType: data.actionType,
         message: `ACCESS GRANTED: ${data.log.user?.name || 'User'} verified successfully via RFID for ${data.actionType.toUpperCase()}`
       });
+
+      // Append locally to prevent blank streams on WebSocket issues
+      if (data.log) {
+        setLogs((prev) => {
+          if (prev.some((l) => l.id === data.log.id)) return prev;
+          return [data.log, ...prev];
+        });
+      }
     } catch (err: any) {
       setScanResult({
         success: false,
