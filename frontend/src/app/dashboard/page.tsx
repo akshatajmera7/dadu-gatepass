@@ -166,14 +166,7 @@ export default function UserDashboard() {
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', boxSizing: 'border-box' }}>
       
       {/* Navbar */}
-      <header className="glass-panel" style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: '16px 32px',
-        margin: '20px 30px',
-        borderRadius: '12px'
-      }}>
+      <header className="glass-panel navbar-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <UserCheck size={24} style={{ color: '#6366f1' }} />
           <span style={{ fontSize: '1.25rem', fontWeight: 800, letterSpacing: '-0.03em' }}>V-GATE PORTAL</span>
@@ -213,14 +206,7 @@ export default function UserDashboard() {
       </header>
 
       {/* Main Grid */}
-      <main style={{
-        flex: 1,
-        display: 'grid',
-        gridTemplateColumns: '1.2fr 1.8fr',
-        gap: '30px',
-        margin: '0 30px 30px 30px',
-        alignItems: 'start'
-      }}>
+      <main className="dashboard-grid" style={{ flex: 1 }}>
         
         {/* Pass request form */}
         <section className="glass-panel" style={{ padding: '30px' }}>
@@ -342,7 +328,7 @@ export default function UserDashboard() {
                 backgroundColor: '#6366f1'
               }}></div>
               
-              <div style={{ display: 'flex', gap: '30px', alignItems: 'center' }}>
+              <div className="qr-panel-content" style={{ display: 'flex', gap: '30px', alignItems: 'center' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
                   <div className="pulse-qr" style={{
                     padding: '16px',

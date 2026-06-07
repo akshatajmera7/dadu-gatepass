@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { api, getUser, setUser, User } from '../../lib/api';
 import { io } from 'socket.io-client';
-import { ShieldAlert, LogOut, Radio, QrCode, Play, Terminal, Users, UserCheck, AlertTriangle } from 'lucide-react';
+import { ShieldAlert, LogOut, Radio, QrCode, Play, Terminal, Users, UserCheck, AlertTriangle, Camera, CameraOff } from 'lucide-react';
 
 const PRESET_RFID_CARDS = [
   { name: 'Akshat (Student)', rfid: 'd3b07384-d113-4ec5-a587-3932e65c0001', tag: 'RFID_STUDENT_AKSHAT' },
@@ -19,7 +19,17 @@ export default function GateDashboard() {
   const [rfidInput, setRfidInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [scanResult, setScanResult] = useState<{ success: boolean; message: string; actionType?: string } | null>(null);
+  const [cameraActive, setCameraActive] = useState(false);
+  const [scannerInstance, setScannerInstance] = useState<any | null>(null);
   const router = useRouter();
+
+  useEffect(() => {
+    return () => {
+      if (scannerInstance) {
+        scannerInstance.stop().catch(console.error);
+      }
+    };
+  }, [scannerInstance]);
 
   useEffect(() => {
     const user = getUser();
@@ -47,13 +57,12 @@ export default function GateDashboard() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleQRVerify = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!qrInput) return;
+  const handleQRVerifyDirectly = async (payloadStr: string) => {
+    if (!payloadStr) return;
     setLoading(true);
     setScanResult(null);
     try {
-      const data = await api.verifyQRPayload(qrInput);
+      const data = await api.verifyQRPayload(payloadStr);
       setScanResult({
         success: true,
         actionType: data.actionType,
@@ -68,6 +77,54 @@ export default function GateDashboard() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleQRVerify = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await handleQRVerifyDirectly(qrInput);
+  };
+
+  const startScanner = async () => {
+    setCameraActive(true);
+    setScanResult(null);
+    const { Html5Qrcode } = await import('html5-qrcode');
+    
+    setTimeout(() => {
+      const html5QrCode = new Html5Qrcode("reader");
+      setScannerInstance(html5QrCode);
+      
+      html5QrCode.start(
+        { facingMode: "environment" }, 
+        {
+          fps: 10,
+          qrbox: { width: 250, height: 250 }
+        },
+        async (decodedText) => {
+          setQrInput(decodedText);
+          await html5QrCode.stop();
+          setCameraActive(false);
+          setScannerInstance(null);
+          await handleQRVerifyDirectly(decodedText);
+        },
+        () => {}
+      ).catch((err) => {
+        console.error("Scanner start failed:", err);
+        setCameraActive(false);
+        setScannerInstance(null);
+      });
+    }, 150);
+  };
+
+  const stopScanner = async () => {
+    if (scannerInstance) {
+      try {
+        await scannerInstance.stop();
+      } catch (err) {
+        console.error(err);
+      }
+      setScannerInstance(null);
+    }
+    setCameraActive(false);
   };
 
   const handleRFIDVerify = async (tag: string) => {
@@ -109,14 +166,7 @@ export default function GateDashboard() {
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', boxSizing: 'border-box' }}>
       
       {/* Navbar */}
-      <header className="glass-panel" style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: '16px 32px',
-        margin: '20px 30px',
-        borderRadius: '12px'
-      }}>
+      <header className="glass-panel navbar-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <Radio size={24} style={{ color: '#ef4444', animation: 'pulse-glow 1.5s infinite' }} />
           <span style={{ fontSize: '1.25rem', fontWeight: 800, letterSpacing: '-0.03em', color: '#ef4444' }}>
@@ -138,14 +188,7 @@ export default function GateDashboard() {
       </header>
 
       {/* Main Command Dashboard Layout */}
-      <main style={{
-        flex: 1,
-        display: 'grid',
-        gridTemplateColumns: '1.2fr 1.8fr',
-        gap: '30px',
-        margin: '0 30px 30px 30px',
-        alignItems: 'stretch'
-      }}>
+      <main className="dashboard-grid" style={{ flex: 1 }}>
         
         {/* Left Side: Simulation Controllers */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '30px' }}>
@@ -182,14 +225,40 @@ export default function GateDashboard() {
 
           {/* QR Code Scanner Simulation */}
           <section className="glass-panel" style={{ padding: '24px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '16px' }}>
-              <QrCode size={20} style={{ color: '#6366f1' }} />
-              <h2 style={{ fontSize: '1.1rem', fontWeight: 700, margin: 0 }}>QR Code Scanner Simulator</h2>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <QrCode size={20} style={{ color: '#6366f1' }} />
+                <h2 style={{ fontSize: '1.1rem', fontWeight: 700, margin: 0 }}>QR Code Scanner Simulator</h2>
+              </div>
+
+              <button
+                type="button"
+                onClick={cameraActive ? stopScanner : startScanner}
+                className="glow-button"
+                style={{
+                  padding: '6px 12px',
+                  fontSize: '0.75rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '6px',
+                  background: cameraActive ? 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)' : 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+                  boxShadow: cameraActive ? '0 4px 10px rgba(239, 68, 68, 0.2)' : '0 4px 10px rgba(16, 185, 129, 0.2)'
+                }}
+              >
+                {cameraActive ? <CameraOff size={14} /> : <Camera size={14} />}
+                {cameraActive ? 'Stop Camera' : 'Scan via Camera'}
+              </button>
             </div>
             
+            {cameraActive && (
+              <div style={{ marginBottom: '16px' }}>
+                <div id="reader" style={{ width: '100%', maxWidth: '350px', margin: '0 auto', overflow: 'hidden', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)' }}></div>
+              </div>
+            )}
+
             <form onSubmit={handleQRVerify} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <p style={{ margin: '0 0 4px 0', fontSize: '0.8rem', color: '#94a3b8' }}>
-                Paste the encrypted payload string generated from the Student/Faculty Dashboard below:
+                Paste the encrypted payload string OR use the camera scanner button above:
               </p>
               <textarea
                 className="input-field"
