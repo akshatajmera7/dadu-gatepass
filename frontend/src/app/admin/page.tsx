@@ -157,14 +157,7 @@ export default function AdminPortal() {
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', boxSizing: 'border-box' }}>
       
       {/* Navbar */}
-      <header className="glass-panel" style={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        padding: '16px 32px',
-        margin: '20px 30px',
-        borderRadius: '12px'
-      }}>
+      <header className="glass-panel navbar-header">
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <Shield size={24} style={{ color: '#6366f1' }} />
           <span style={{ fontSize: '1.25rem', fontWeight: 800, letterSpacing: '-0.03em' }}>V-GATE ADMIN CONSOLE</span>
@@ -184,7 +177,7 @@ export default function AdminPortal() {
       </header>
 
       {/* Navigation tabs */}
-      <div style={{ display: 'flex', gap: '10px', margin: '0 30px 20px 30px' }}>
+      <div className="admin-tabs" style={{ display: 'flex', gap: '10px', margin: '0 30px 20px 30px' }}>
         <button
           onClick={() => setActiveTab('inbox')}
           style={{
@@ -195,7 +188,8 @@ export default function AdminPortal() {
             cursor: 'pointer',
             backgroundColor: activeTab === 'inbox' ? '#6366f1' : 'rgba(255,255,255,0.05)',
             color: activeTab === 'inbox' ? 'white' : '#94a3b8',
-            transition: 'all 0.2s'
+            transition: 'all 0.2s',
+            whiteSpace: 'nowrap' as any
           }}
         >
           Approval Inbox
@@ -239,7 +233,7 @@ export default function AdminPortal() {
       </div>
 
       {/* Main Area */}
-      <main style={{ flex: 1, margin: '0 30px 30px 30px', display: 'flex', flexDirection: 'column' }}>
+      <main style={{ flex: 1, margin: '0 30px 30px 30px', display: 'flex', flexDirection: 'column' }} className="admin-main">
         
         {error && (
           <div style={{
@@ -285,7 +279,7 @@ export default function AdminPortal() {
                       boxSizing: 'border-box'
                     }}
                   >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                    <div className="pass-card-row" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                       <div>
                         <div style={{ fontWeight: 700, fontSize: '1.05rem', marginBottom: '4px' }}>
                           {pass.user?.name || 'Applicant'}
@@ -315,7 +309,7 @@ export default function AdminPortal() {
                     </div>
 
                     {/* Decision row */}
-                    <div style={{ display: 'flex', gap: '10px', alignItems: 'center', marginTop: '6px' }}>
+                    <div className="pass-card-actions" style={{ display: 'flex', gap: '10px', alignItems: 'center', marginTop: '6px' }}>
                       <input
                         type="text"
                         className="input-field"
@@ -399,7 +393,7 @@ export default function AdminPortal() {
                 />
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+              <div className="date-grid-row" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                   <label style={{ fontSize: '0.85rem', color: '#94a3b8' }}>Start Date</label>
                   <input
@@ -509,7 +503,7 @@ export default function AdminPortal() {
                     <Sparkles size={16} style={{ color: '#06b6d4' }} /> Student Profile Found in SWD
                   </h3>
 
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', fontSize: '0.85rem', marginBottom: '16px' }}>
+                  <div className="swd-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', fontSize: '0.85rem', marginBottom: '16px' }}>
                     <div>
                       <span style={{ color: '#64748b' }}>Name:</span> <strong style={{ color: 'white' }}>{swdStudent.user?.name}</strong>
                     </div>

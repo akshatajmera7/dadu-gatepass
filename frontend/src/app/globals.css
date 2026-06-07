@@ -173,5 +173,99 @@ body {
   .qr-panel-content button {
     margin: 16px auto 0 auto !important;
   }
+
+  /* Admin page: tab nav wraps */
+  .admin-tabs {
+    flex-wrap: wrap;
+    margin: 0 15px 15px 15px !important;
+    gap: 8px !important;
+  }
+
+  .admin-main {
+    margin: 0 15px 15px 15px !important;
+  }
+
+  /* Date grids stack on mobile */
+  .date-grid-row {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Pass card actions stack */
+  .pass-card-row {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 10px !important;
+  }
+
+  .pass-card-actions {
+    flex-direction: column !important;
+    width: 100% !important;
+    gap: 8px !important;
+  }
+
+  .pass-card-actions input {
+    width: 100% !important;
+  }
+
+  .pass-card-actions button {
+    width: 100% !important;
+    justify-content: center !important;
+  }
+
+  /* SWD student grid */
+  .swd-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Gate page: scanner & RFID buttons */
+  .scanner-header {
+    flex-direction: column !important;
+    gap: 10px !important;
+    align-items: flex-start !important;
+  }
+
+  .rfid-custom-row {
+    flex-direction: column !important;
+    gap: 10px !important;
+  }
+
+  .rfid-custom-row button {
+    width: 100% !important;
+  }
+
+  /* Log card stacks on narrow screens */
+  .log-card {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 8px !important;
+  }
+
+  .log-card > div:last-child {
+    align-items: flex-start !important;
+    text-align: left !important;
+    flex-direction: row !important;
+    gap: 10px !important;
+  }
 }
 
+/* Extra small screens */
+@media (max-width: 420px) {
+  .navbar-header {
+    padding: 12px;
+    margin: 10px;
+  }
+
+  .dashboard-grid {
+    margin: 0 10px 10px 10px;
+    gap: 15px;
+  }
+
+  .glass-panel {
+    border-radius: 12px;
+  }
+
+  .glow-button {
+    padding: 8px 14px;
+    font-size: 0.85rem;
+  }
+}
