@@ -30,7 +30,7 @@ export default function GateDashboard() {
     setCurrentUser(user);
 
     // Initialize WebSockets connection for live updates
-    const socket = io('http://localhost:5000');
+    const socket = io(process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:5000');
     
     socket.on('connect', () => {
       console.log('Connected to real-time logs socket');
