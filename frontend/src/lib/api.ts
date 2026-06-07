@@ -45,6 +45,14 @@ export function setUser(user: User | null) {
   }
 }
 
+/** Returns the frontend app base URL for building QR code URLs */
+export function getAppBaseUrl(): string {
+  if (typeof window !== 'undefined') {
+    return window.location.origin;
+  }
+  return process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+}
+
 async function request(endpoint: string, options: RequestInit = {}) {
   const token = getToken();
   const headers = new Headers(options.headers || {});
@@ -141,6 +149,14 @@ export const api = {
       method: 'POST',
       headers: { 'x-api-key': apiKey },
       body: JSON.stringify(payload),
+    });
+  },
+
+  // Public verification (no auth — for phone camera QR scans)
+  async publicVerifyQR(payload: string) {
+    return request('/verification/qr/public-verify', {
+      method: 'POST',
+      body: JSON.stringify({ payload }),
     });
   }
 };

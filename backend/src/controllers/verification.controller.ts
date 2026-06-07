@@ -331,3 +331,91 @@ export async function simulateRFID(req: AuthenticatedRequest, res: Response) {
     return res.status(500).json({ error: 'RFID verification failed', details: error.message });
   }
 }
+
+/**
+ * Public QR Verification — No authentication required.
+ * This is a read-only check that validates the QR token and returns pass details.
+ * It does NOT create a gate log entry (that requires gate_security auth).
+ * Used when someone scans the QR code with their phone's native camera.
+ */
+export async function publicVerifyQR(req: Request, res: Response) {
+  const { payload } = req.body;
+  if (!payload) {
+    return res.status(400).json({ error: 'Payload is required' });
+  }
+
+  try {
+    const decryptedData = JSON.parse(decrypt(payload));
+    const { passId, totp, createdAt } = decryptedData;
+
+    // Check drift — QR expires in 30 seconds
+    if (Date.now() - createdAt > 30000) {
+      return res.status(400).json({
+        valid: false,
+        error: 'QR Code has expired. The pass holder needs to refresh their QR code.'
+      });
+    }
+
+    // Fetch pass and secret key
+    let pass: any = null;
+    let secretKey = '';
+    let userDetails: any = null;
+
+    try {
+      pass = await prisma.pass.findUnique({
+        where: { id: passId },
+        include: { rotatingQrSecret: true, user: { include: { studentProfile: true } } }
+      });
+
+      if (pass) {
+        secretKey = pass.rotatingQrSecret?.secretKey || 'defaultsecretkey12345';
+        userDetails = pass.user;
+      }
+    } catch {
+      // DB failed, try mock
+    }
+
+    if (!pass) {
+      const mockPass = MOCK_PASSES.find(p => p.id === passId);
+      if (mockPass) {
+        pass = mockPass;
+        secretKey = getMockSecretForPass(passId);
+        userDetails = mockPass.user;
+      }
+    }
+
+    if (!pass) {
+      return res.status(404).json({ valid: false, error: 'Pass not found' });
+    }
+
+    if (pass.status !== PassStatus.approved) {
+      return res.status(400).json({ valid: false, error: 'Pass is no longer approved' });
+    }
+
+    // Verify TOTP
+    const isValid = checkTOTP(totp, secretKey);
+    if (!isValid) {
+      return res.status(400).json({ valid: false, error: 'Invalid QR code signature — possible screenshot or expired token' });
+    }
+
+    // Return pass details without creating a log
+    return res.json({
+      valid: true,
+      pass: {
+        id: pass.id,
+        passType: pass.passType,
+        status: pass.status,
+        startDate: pass.startDate,
+        endDate: pass.endDate,
+        passDetails: pass.passDetails || (pass as any).passDetails,
+      },
+      user: {
+        name: userDetails?.name,
+        role: userDetails?.role,
+        studentProfile: userDetails?.studentProfile,
+      }
+    });
+  } catch (err: any) {
+    return res.status(400).json({ valid: false, error: 'Verification failed: could not decrypt QR code', details: err.message });
+  }
+}
