@@ -57,12 +57,28 @@ export default function GateDashboard() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const extractTokenFromPayload = (raw: string): string => {
+    // If the scanned value is a URL (new format), extract the token parameter
+    try {
+      if (raw.startsWith('http://') || raw.startsWith('https://')) {
+        const url = new URL(raw);
+        const token = url.searchParams.get('token');
+        if (token) return token;
+      }
+    } catch {
+      // Not a valid URL, treat as raw payload
+    }
+    return raw;
+  };
+
   const handleQRVerifyDirectly = async (payloadStr: string) => {
     if (!payloadStr) return;
     setLoading(true);
     setScanResult(null);
+
+    const token = extractTokenFromPayload(payloadStr);
     try {
-      const data = await api.verifyQRPayload(payloadStr);
+      const data = await api.verifyQRPayload(token);
       setScanResult({
         success: true,
         actionType: data.actionType,
@@ -242,7 +258,7 @@ export default function GateDashboard() {
 
           {/* QR Code Scanner Simulation */}
           <section className="glass-panel" style={{ padding: '24px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+            <div className="scanner-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <QrCode size={20} style={{ color: '#6366f1' }} />
                 <h2 style={{ fontSize: '1.1rem', fontWeight: 700, margin: 0 }}>QR Code Scanner Simulator</h2>
@@ -299,7 +315,7 @@ export default function GateDashboard() {
             </div>
             
             <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              <div style={{ display: 'flex', gap: '10px' }}>
+              <div className="rfid-custom-row" style={{ display: 'flex', gap: '10px' }}>
                 <input
                   type="text"
                   className="input-field"
@@ -408,7 +424,7 @@ export default function GateDashboard() {
                 return (
                   <div
                     key={log.id}
-                    className="glass-card slide-up"
+                    className="glass-card slide-up log-card"
                     style={{
                       padding: '12px 16px',
                       borderLeft: `4px solid ${isDenied ? '#ef4444' : isEntry ? '#10b981' : '#3b82f6'}`,

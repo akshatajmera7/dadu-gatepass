@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { api, getUser, setUser, User } from '../../lib/api';
+import { api, getUser, setUser, User, getAppBaseUrl } from '../../lib/api';
 import { LogOut, Calendar, PlusCircle, UserCheck, ShieldAlert, RefreshCw, QrCode, ClipboardList, Clock } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 
@@ -239,7 +239,7 @@ export default function UserDashboard() {
               </select>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+            <div className="date-grid-row" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
                 <label style={{ fontSize: '0.85rem', color: '#94a3b8' }}>Start Date</label>
                 <input
@@ -345,7 +345,7 @@ export default function UserDashboard() {
                       </div>
                     ) : (
                       qrPayload ? (
-                        <QRCodeSVG value={qrPayload} size={180} />
+                        <QRCodeSVG value={`${getAppBaseUrl()}/verify?token=${encodeURIComponent(qrPayload)}`} size={180} />
                       ) : (
                         <div style={{ width: '180px', height: '180px', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#ef4444' }}>
                           <ShieldAlert size={28} />
