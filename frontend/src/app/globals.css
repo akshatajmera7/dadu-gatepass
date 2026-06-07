@@ -1,21 +1,21 @@
 @import "tailwindcss";
 
 :root {
-  --background: #0b0f19;
-  --foreground: #f8fafc;
-  --card-bg: rgba(30, 41, 59, 0.4);
-  --card-border: rgba(148, 163, 184, 0.1);
-  --primary: #6366f1;
-  --primary-hover: #4f46e5;
-  --success: #10b981;
-  --danger: #ef4444;
-  --warning: #f59e0b;
+  --background: #000000;
+  --foreground: #ffffff;
+  --card-bg: rgba(255, 255, 255, 0.03);
+  --card-border: rgba(255, 255, 255, 0.08);
+  --primary: #ffffff;
+  --primary-hover: #e2e8f0;
+  --success: #ffffff;
+  --danger: #ffffff;
+  --warning: #ffffff;
 }
 
 body {
   background-color: var(--background);
   color: var(--foreground);
-  font-family: 'Inter', system-ui, sans-serif;
+  font-family: 'Outfit', 'Inter', system-ui, -apple-system, sans-serif;
   margin: 0;
   padding: 0;
   min-height: 100vh;
@@ -23,14 +23,14 @@ body {
 
 /* Premium custom UI styles */
 .glass-panel {
-  background: rgba(17, 24, 39, 0.75);
-  backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(18, 18, 18, 0.8);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 16px;
 }
 
 .glass-card {
-  background: rgba(30, 41, 59, 0.45);
+  background: rgba(255, 255, 255, 0.03);
   backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.05);
   border-radius: 12px;
@@ -39,48 +39,54 @@ body {
 
 .glass-card:hover {
   transform: translateY(-2px);
-  border-color: rgba(99, 102, 241, 0.3);
-  box-shadow: 0 10px 20px -10px rgba(99, 102, 241, 0.2);
+  border-color: rgba(255, 255, 255, 0.2);
+  box-shadow: 0 10px 20px -10px rgba(255, 255, 255, 0.1);
 }
 
 .glow-button {
-  background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
-  color: white;
+  background: #ffffff;
+  color: #000000;
   border-radius: 8px;
   padding: 10px 20px;
   font-weight: 600;
-  border: none;
+  border: 1px solid #ffffff;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 14px 0 rgba(99, 102, 241, 0.3);
 }
 
 .glow-button:hover {
-  box-shadow: 0 6px 20px 0 rgba(99, 102, 241, 0.5);
-  transform: translateY(-1px);
+  background: #000000;
+  color: #ffffff;
+  border-color: #ffffff;
 }
 
 .glow-success {
-  background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  box-shadow: 0 4px 14px 0 rgba(16, 185, 129, 0.3);
+  background: #ffffff;
+  color: #000000;
+  border-color: #ffffff;
 }
 
 .glow-success:hover {
-  box-shadow: 0 6px 20px 0 rgba(16, 185, 129, 0.5);
+  background: #000000;
+  color: #ffffff;
+  border-color: #ffffff;
 }
 
 .glow-danger {
-  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-  box-shadow: 0 4px 14px 0 rgba(239, 68, 68, 0.3);
+  background: #ffffff;
+  color: #000000;
+  border-color: #ffffff;
 }
 
 .glow-danger:hover {
-  box-shadow: 0 6px 20px 0 rgba(239, 68, 68, 0.5);
+  background: #000000;
+  color: #ffffff;
+  border-color: #ffffff;
 }
 
 .input-field {
-  background: rgba(15, 23, 42, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 8px;
   color: white;
   padding: 12px;
@@ -89,8 +95,8 @@ body {
 }
 
 .input-field:focus {
-  border-color: #6366f1;
-  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+  border-color: #ffffff;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.2);
 }
 
 /* Animations */
